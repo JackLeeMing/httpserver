@@ -12,20 +12,12 @@ metadata:
 spec:
   containers:
   - name: kaniko
-    image: gcr.io/kaniko-project/executor:debug
+    image: docker-registry.jaquelee.com:5000/kaniko-project/executor:debug
     command:
     - sleep
     args:
     - 99999
     tty: true
-    volumeMounts:
-      - name: docker-secret
-        mountPath: /kaniko/.docker
-        readOnly: true
-  volumes:
-  - name: docker-secret
-    secret:
-      secretName: regcred
 """
     }
   }
@@ -43,7 +35,7 @@ spec:
       steps {
         container('kaniko') {
           sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd`/src --cache=true \
-          --destination=cloudnative.azurecr.io/httpserver:${DATED_GIT_HASH} \
+          --destination=docker-registry.jaquelee.com:5000/httpserver/httpserver:${DATED_GIT_HASH} \
                   --insecure \
                   --skip-tls-verify  \
                   -v=debug'
@@ -62,20 +54,20 @@ metadata:
 spec:
   containers:
   - name: helm
-    image: alpine/helm:3.8.1
+    image: docker-registry.jaquelee.com:5000/alpine/helm:3.8.1
     command:
     - sleep
     args:
     - 99999
     tty: true
     volumeMounts:
-      - name: docker-secret
+      - name: helm-secret
         mountPath: /root/.config/helm/registry
         readOnly: true
   volumes:
-  - name: docker-secret
+  - name: helm-secret
     secret:
-      secretName: regcred
+      secretName: mysecret
 """
     }
   }
